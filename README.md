@@ -64,7 +64,7 @@ timestamp <- max(family_data_melt$Date)
 
 ### Graph cases vs. deaths in India Original
 
-ggsave(filename = "SARS_CoV_2_Progression.png",
+ggsave(filename = "SARS_CoV_2_Progression.pdf",
 ggplot(data=family_data_melt, aes(x=Date,y=value, group=variable)) +
 ggtitle(paste("SARS-CoV-2 Deaths/Cases Progression as of",timestamp)) +
 theme_classic() +
@@ -82,7 +82,7 @@ theme(text = element_text(size=13)) +
 theme(strip.background =element_rect(fill="#0066FF")) +
 theme(strip.text.x = element_text(size = 16, colour = "white")) +
 facet_wrap(~Country.Region),
-       width = 7, height = 7, dpi = 300, units = "in", device='png')
+       width = 7, height = 7, dpi = 300, units = "in", device='pdf')
 
 
 
