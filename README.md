@@ -59,13 +59,20 @@ family_data$Date <- as.Date(family_data$Date,format = "%m.%d.%y")
 ### Melt cases and deaths together to plot
 family_data_melt <- melt(data=family_data, id.vars=c("Province.State", "Country.Region", "Lat", "Long", "Date"), measure.vars=c("Cases", "Deaths"))
 
+
+### Generate a diff from the day prior to track progression
+dater <- family_data_melt %>%
+    group_by(Country.Region, Lat, Long, variable) %>%
+    arrange(Date) %>%
+    mutate(diff = value - lag(value, default = first(value)))
+
 ### Generate Timestamp for plot title 
-timestamp <- max(family_data_melt$Date)
+timestamp <- max(dater$Date)
 
 ### Graph cases vs. deaths in India Original
 
 ggsave(filename = "SARS_CoV_2_Progression.pdf",
-ggplot(data=family_data_melt, aes(x=Date,y=value, group=variable)) +
+ggplot(data=dater, aes(x=Date,y=diff, group=variable)) +
 ggtitle(paste("SARS-CoV-2 Deaths/Cases Progression as of",timestamp)) +
 theme_classic() +
 geom_point(aes(color=variable), size =2) +
@@ -83,6 +90,8 @@ theme(strip.background =element_rect(fill="#0066FF")) +
 theme(strip.text.x = element_text(size = 16, colour = "white")) +
 facet_wrap(~Country.Region),
        width = 7, height = 7, dpi = 300, units = "in", device='pdf')
+
+
 
 
 
