@@ -23,6 +23,8 @@ Corona_Deaths.fn<-paste0(basename(Corona_Deaths.source_url))
 download.file(Corona_Deaths.source_url,destfile = Corona_Deaths.fn)
 Corona_Deaths.raw<-read.csv(Corona_Deaths.fn,header = T,stringsAsFactors = F)
 
+### Read in global deaths from CSSEGISandData
+
 
 ### Read in Maryland and CC Cases
 Corona_Cases_US.source_url<-"https://github.com/CSSEGISandData/COVID-19/raw/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
@@ -95,6 +97,13 @@ tmp <- combined_CC_MD %>%
 rm(combined_CC_MD)
 combined_CC_MD <- tmp
 rm(tmp)
+tmp <- combined_CC_MD %>% 
+  group_by(Location, Date, variable) %>% 
+  summarise(value = sum(value))
+rm(combined_CC_MD)
+combined_CC_MD <- tmp
+rm(tmp)
+  
 
 
 
@@ -105,7 +114,7 @@ dater <- family_data_melt %>%
     mutate(diff = value - lag(value, default = first(value)))
     
 md_dater <- combined_CC_MD %>%
-    group_by(Location,Admin2, Province_State, variable) %>%
+    group_by(Location, variable) %>%
     arrange(Date) %>%
     mutate(diff = value - lag(value, default = first(value)))
 
@@ -149,7 +158,7 @@ geom_point(aes(color=variable), size =2) +
 geom_line(aes(color=variable)) +
 scale_color_manual(values = c("orangered3","springgreen4")) +
 theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-#scale_y_log10(labels=comma) +
+scale_y_continuous(labels=comma) +
 xlab("") +
 scale_x_date(labels = date_format("%m/%d"), breaks = date_breaks("7 days")) +
 ylab("Number of People Impacted by SARS-CoV-2") +
@@ -158,7 +167,7 @@ theme(legend.text=element_text(size=12)) +
 theme(text = element_text(size=11)) +
 theme(strip.background =element_rect(fill="#0066FF")) +
 theme(strip.text.x = element_text(size = 16, colour = "white")) +
-facet_wrap(~Location),
+facet_wrap(~Location, scales="free"),
        width = 7, height = 7, dpi = 300, units = "in", device='pdf')
 
 
